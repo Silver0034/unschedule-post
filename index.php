@@ -26,20 +26,44 @@ add_action('enqueue_block_editor_assets', function () {
     }
 });
 
-// Register meta for all public post types
+// Register meta for all public post types and ensure custom-fields support
 add_action('init', function () {
     $post_types = get_post_types(['public' => true], 'names');
     foreach ($post_types as $post_type) {
+        // Add support for custom-fields if not already present
+        if (!post_type_supports($post_type, 'custom-fields')) {
+            add_post_type_support($post_type, 'custom-fields');
+        }
+        // Register the meta key for REST API
         register_post_meta($post_type, '_unschedule_post_data', [
-            'show_in_rest' => true,
+            'show_in_rest' => [
+                'schema' => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'date'   => ['type' => 'string'],
+                        'status' => ['type' => 'string'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
             'single' => true,
             'type' => 'object',
+            'sanitize_callback' => function ($value) {
+                if (is_array($value) && isset($value['date']) && isset($value['status'])) {
+                    return [
+                        'date' => sanitize_text_field($value['date']),
+                        'status' => sanitize_text_field($value['status'])
+                    ];
+                }
+                return [];
+            },
             'auth_callback' => function () {
                 return current_user_can('edit_posts');
             },
         ]);
     }
-});
+}, 100); // High priority to run after most post types are registered
+
 
 // Listen for meta changes and schedule/unschedule cron
 add_action('updated_post_meta', function ($meta_id, $post_id, $meta_key, $meta_value) {
@@ -50,7 +74,18 @@ add_action('updated_post_meta', function ($meta_id, $post_id, $meta_key, $meta_v
         if ($timestamp && $timestamp > time()) {
             wp_schedule_single_event($timestamp, 'unschedule_post_cron_event', [$post_id, $meta_value['status']]);
         } else if ($timestamp) {
-            $GLOBALS['unschedule_post_admin_notice'] = __('Unpublish schedule time is in the past or invalid.', 'unschedule-post');
+            // If in the past, immediately unpublish and clear meta
+            $statuses = apply_filters('unschedule_post_statuses', [
+                'draft' => __('Draft', 'unschedule-post'),
+                'private' => __('Private', 'unschedule-post'),
+            ], get_post($post_id));
+            if (isset($statuses[$meta_value['status']])) {
+                wp_update_post([
+                    'ID' => $post_id,
+                    'post_status' => $meta_value['status'],
+                ]);
+                delete_post_meta($post_id, '_unschedule_post_data');
+            }
         }
     }
 }, 10, 4);
@@ -104,9 +139,9 @@ function unschedule_post_parse_datetime($datetime)
     if (empty($datetime)) return false;
     $timezone = wp_timezone();
     try {
-        $dt = new DateTimeImmutable($datetime, $timezone);
+        $dt = new \DateTimeImmutable($datetime, $timezone);
         return $dt->getTimestamp();
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         return false;
     }
 }

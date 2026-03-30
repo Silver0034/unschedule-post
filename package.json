@@ -18,11 +18,8 @@
 	"engines": {
 		"node": ">=20"
 	},
-	"devDependencies": {
-		"@wordpress/scripts": "^31.7.0",
-		"webpack-cli": "^7.0.2"
-	},
-	"dependencies": {
-		"@wordpress/components": "^32.4.0"
-	}
+	   "devDependencies": {
+		   "@wordpress/scripts": "^32.0.0",
+		   "@wordpress/components": "^32.4.0"
+	   }
 }
