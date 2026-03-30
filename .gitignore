@@ -1,0 +1,14 @@
+# Ignore node modules and build artifacts
+node_modules/
+dist/
+build/
+*.log
+*.tmp
+*.cache
+package-lock.json
+yarn.lock
+.DS_Store
+.env
+.idea/
+.vscode/
+webpack-stats.json
