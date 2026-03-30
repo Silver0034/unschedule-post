@@ -111,6 +111,10 @@ add_action('unschedule_post_cron_event', function ($post_id, $status) {
         'post_status' => $status,
     ], true);
     if (is_wp_error($result)) {
+        // Log error to debug.log for troubleshooting
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[unschedule-post] Failed to unpublish post ID ' . $post_id . ' to status ' . $status . ': ' . $result->get_error_message());
+        }
         unschedule_post_notify_admin_failure($post, $status, $result->get_error_message());
     } else {
         delete_post_meta($post_id, '_unschedule_post_data');
