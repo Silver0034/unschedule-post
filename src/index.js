@@ -3,6 +3,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
+import { DateTimePicker } from '@wordpress/components';
 
 const META_KEY = '_unschedule_post_data';
 
@@ -27,32 +28,32 @@ const UnpublishSchedulePanel = () => {
 	return (
 		<PluginDocumentSettingPanel
 			name="unschedule-post-panel"
-			title={__('Unpublish Schedule', 'unschedule-post')}
+			title={__('Unpublish', 'unschedule-post')}
 			className="unschedule-post-panel"
 		>
-			<label>{__('Unpublish Date/Time', 'unschedule-post')}</label>
-			<input
-				type="datetime-local"
-				value={date}
-				onChange={e => {
-					setDate(e.target.value);
-					editPost({ meta: { ...meta, [META_KEY]: { ...meta[META_KEY], date: e.target.value, status } } });
+			<DateTimePicker
+				currentDate={date || undefined}
+				onChange={newDate => {
+					setDate(newDate);
+					editPost({ meta: { ...meta, [META_KEY]: { ...meta[META_KEY], date: newDate, status } } });
 				}}
-				style={{ width: '100%' }}
+				is12Hour={false}
 			/>
-			<label>{__('Target Status', 'unschedule-post')}</label>
-			<select
-				value={status}
-				onChange={e => {
-					setStatus(e.target.value);
-					editPost({ meta: { ...meta, [META_KEY]: { ...meta[META_KEY], date, status: e.target.value } } });
-				}}
-				style={{ width: '100%' }}
-			>
-				{statuses.map(opt => (
-					<option key={opt.value} value={opt.value}>{opt.label}</option>
-				))}
-			</select>
+			<div style={{ marginTop: 12 }}>
+				<label>{__('Target Status', 'unschedule-post')}</label>
+				<select
+					value={status}
+					onChange={e => {
+						setStatus(e.target.value);
+						editPost({ meta: { ...meta, [META_KEY]: { ...meta[META_KEY], date, status: e.target.value } } });
+					}}
+					style={{ width: '100%' }}
+				>
+					{statuses.map(opt => (
+						<option key={opt.value} value={opt.value}>{opt.label}</option>
+					))}
+				</select>
+			</div>
 		</PluginDocumentSettingPanel>
 	);
 };
