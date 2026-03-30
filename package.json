@@ -1,0 +1,25 @@
+{
+	"name": "unschedule-post",
+	"version": "0.1.0",
+	"description": "WordPress plugin to schedule a post status change to 'Draft' or 'Private'.",
+	"private": true,
+	   "scripts": {
+		   "start": "wp-scripts start",
+		   "build": "wp-scripts build"
+	   },
+	"keywords": [
+		"wordpress",
+		"plugin",
+		"dialog",
+		"modal",
+		"gutenberg"
+	],
+	"license": "GPL-2.0-or-later",
+	"engines": {
+		"node": ">=20"
+	},
+	   "devDependencies": {
+		   "@wordpress/scripts": "^31.7.0"
+	   },
+	"type": "commonjs"
+}
