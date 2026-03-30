@@ -30,13 +30,13 @@ const UnpublishStatusRow = () => {
 			<div
 				ref={rowRef}
 				className="edit-post-post-schedule__row"
-				style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '8px 0' }}
+				style={{ cursor: 'pointer', padding: '8px 0' }}
 				onClick={() => setPickerOpen(true)}
 			>
-				<span>{__('Unpublish', 'unschedule-post')}</span>
-				<Button variant="link" style={{ padding: 0 }}>
-					{formatted}
-				</Button>
+				<span className="edit-post-post-schedule__label">{__('Unpublish', 'unschedule-post')}</span>
+				<span className="edit-post-post-schedule__value">
+					<Button variant="link" style={{ padding: 0 }}>{formatted}</Button>
+				</span>
 			</div>
 			{isPickerOpen && (
 				<Popover position="middle right" onClose={() => setPickerOpen(false)} anchorRef={rowRef}>
